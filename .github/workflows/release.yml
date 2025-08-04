@@ -116,18 +116,6 @@ jobs:
           cd release-assets
           sha256sum * > checksums.txt
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.version.outputs.version }}
-          name: Release ${{ steps.version.outputs.version }}
-          body_path: release-notes.md
-          draft: false
-          prerelease: false
-          files: |
-            release-assets/*
-          token: ${{ secrets.GITHUB_TOKEN }}
-
   update-krew-manifest:
     name: Update Krew manifest
     runs-on: ubuntu-latest
