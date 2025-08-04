@@ -71,18 +71,16 @@ jobs:
         run: |
           cd dist
           if [ "${{ matrix.goos }}" = "windows" ]; then
-            zip -r ../${{ env.BINARY_NAME }}_${{ steps.version.outputs.version }}_${{ matrix.os }}_${{ matrix.arch }}.zip .
+            tar -czf ../${{ env.BINARY_NAME }}_${{ steps.version.outputs.version }}_${{ matrix.os }}_${{ matrix.arch }}.tar.gz .
           else
             tar -czf ../${{ env.BINARY_NAME }}_${{ steps.version.outputs.version }}_${{ matrix.os }}_${{ matrix.arch }}.tar.gz .
           fi
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.BINARY_NAME }}_${{ steps.version.outputs.version }}_${{ matrix.os }}_${{ matrix.arch }}
-          path: |
-            ${{ env.BINARY_NAME }}_${{ steps.version.outputs.version }}_${{ matrix.os }}_${{ matrix.arch }}.tar.gz
-            ${{ env.BINARY_NAME }}_${{ steps.version.outputs.version }}_${{ matrix.os }}_${{ matrix.arch }}.zip
+          path: ${{ env.BINARY_NAME }}_${{ steps.version.outputs.version }}_${{ matrix.os }}_${{ matrix.arch }}.tar.gz
 
   release:
     name: Create Release
@@ -104,14 +102,14 @@ jobs:
           fi
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
       - name: Prepare release assets
         run: |
           mkdir -p release-assets
-          find artifacts -name "*.tar.gz" -o -name "*.zip" | xargs -I {} cp {} release-assets/
+          find artifacts -name "*.tar.gz" | xargs -I {} cp {} release-assets/
 
       - name: Generate checksums
         run: |
