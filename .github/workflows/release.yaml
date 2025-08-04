@@ -93,7 +93,7 @@ jobs:
   update-krew-manifest:
     name: Update Krew manifest
     runs-on: ubuntu-latest
-    needs: release
+    needs: build-and-release
     if: github.event_name == 'push'
     steps:
       - name: Checkout code
