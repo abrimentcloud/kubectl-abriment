@@ -71,8 +71,8 @@ jobs:
 
             ### Usage
             ```bash
-            kubectl abriment --help
-            kubectl abriment interactive
+            kubectl abriment help
+            kubectl abriment
             ```
 
             ### Platform Support
