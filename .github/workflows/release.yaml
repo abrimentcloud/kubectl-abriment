@@ -5,41 +5,15 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Version to release (e.g., v1.0.0)"
-        required: true
-        type: string
 
 env:
   BINARY_NAME: kubectl-abriment
-  GO_VERSION: "1.21"
 
 jobs:
-  build:
-    name: Build binaries
+  build-and-release:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - os: linux
-            arch: amd64
-            goos: linux
-            goarch: amd64
-          - os: darwin
-            arch: amd64
-            goos: darwin
-            goarch: amd64
-          - os: darwin
-            arch: arm64
-            goos: darwin
-            goarch: arm64
-          - os: windows
-            arch: amd64
-            goos: windows
-            goarch: amd64
-            ext: .exe
-
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -47,75 +21,75 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version: "1.21"
 
       - name: Get version
         id: version
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
-          else
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
             echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          else
+            echo "version=v1.0.0" >> $GITHUB_OUTPUT
           fi
 
-      - name: Build binary
-        env:
-          GOOS: ${{ matrix.goos }}
-          GOARCH: ${{ matrix.goarch }}
+      - name: Build binaries
         run: |
           mkdir -p dist
-          go build -ldflags "-X main.version=${{ steps.version.outputs.version }}" \
-            -o dist/${{ env.BINARY_NAME }}${{ matrix.ext }} .
 
-      - name: Create archive
-        run: |
-          cd dist
-          if [ "${{ matrix.goos }}" = "windows" ]; then
-            tar -czf ../${{ env.BINARY_NAME }}_${{ steps.version.outputs.version }}_${{ matrix.os }}_${{ matrix.arch }}.tar.gz .
-          else
-            tar -czf ../${{ env.BINARY_NAME }}_${{ steps.version.outputs.version }}_${{ matrix.os }}_${{ matrix.arch }}.tar.gz .
-          fi
+          # Linux amd64
+          GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.version }}" -o dist/kubectl-abriment .
+          cd dist && tar -czf kubectl-abriment_${{ steps.version.outputs.version }}_linux_amd64.tar.gz kubectl-abriment && cd ..
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.BINARY_NAME }}_${{ steps.version.outputs.version }}_${{ matrix.os }}_${{ matrix.arch }}
-          path: ${{ env.BINARY_NAME }}_${{ steps.version.outputs.version }}_${{ matrix.os }}_${{ matrix.arch }}.tar.gz
+          # Darwin amd64
+          GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.version }}" -o dist/kubectl-abriment .
+          cd dist && tar -czf kubectl-abriment_${{ steps.version.outputs.version }}_darwin_amd64.tar.gz kubectl-abriment && cd ..
 
-  release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+          # Darwin arm64
+          GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${{ steps.version.outputs.version }}" -o dist/kubectl-abriment .
+          cd dist && tar -czf kubectl-abriment_${{ steps.version.outputs.version }}_darwin_arm64.tar.gz kubectl-abriment && cd ..
 
-      - name: Get version
-        id: version
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
-          else
-            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Prepare release assets
-        run: |
-          mkdir -p release-assets
-          find artifacts -name "*.tar.gz" | xargs -I {} cp {} release-assets/
+          # Windows amd64
+          GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.version }}" -o dist/kubectl-abriment.exe .
+          cd dist && tar -czf kubectl-abriment_${{ steps.version.outputs.version }}_windows_amd64.tar.gz kubectl-abriment.exe && cd ..
 
       - name: Generate checksums
         run: |
-          cd release-assets
-          sha256sum * > checksums.txt
+          cd dist
+          sha256sum *.tar.gz > checksums.txt
 
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          body: |
+            ## kubectl-abriment ${{ steps.version.outputs.version }}
+
+            ### Installation
+
+            Download the appropriate archive for your platform, extract it, and place the binary in your PATH.
+
+            ### Usage
+            ```bash
+            kubectl abriment
+            kubectl abriment help
+            ```
+
+            ### Platform Support
+            - Linux (amd64)
+            - macOS (amd64, arm64)
+            - Windows (amd64)
+
+            ### Verification
+            Use the checksums.txt file to verify download integrity:
+            ```bash
+            sha256sum -c checksums.txt
+            ```
+          files: |
+            dist/*.tar.gz
+            dist/checksums.txt
+          draft: false
+          prerelease: false
   update-krew-manifest:
     name: Update Krew manifest
     runs-on: ubuntu-latest
