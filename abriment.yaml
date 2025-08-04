@@ -1,0 +1,42 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  name: abriment
+spec:
+  version: v1.0.0
+  homepage: https://github.com/abrimentcloud/kubectl-abriment
+  shortDescription: Authenticate with Abriment backend and configure kubeconfig
+  description: |
+    This plugin allows you to authenticate with the Abriment backend service and
+    automatically configure your kubeconfig file with the necessary cluster,
+    context, and user information. Supports both username/password and token
+    authentication methods, with an interactive mode for guided setup.
+  platforms:
+    - selector:
+        matchLabels:
+          os: darwin
+          arch: amd64
+      uri: https://github.com/abrimentcloud/kubectl-abriment/releases/download/v1.0.0/kubectl-abriment_v1.0.0_darwin_amd64.tar.gz
+      sha256: TODO
+      bin: kubectl-abriment
+    - selector:
+        matchLabels:
+          os: darwin
+          arch: arm64
+      uri: https://github.com/abrimentcloud/kubectl-abriment/releases/download/v1.0.0/kubectl-abriment_v1.0.0_darwin_arm64.tar.gz
+      sha256: TODO
+      bin: kubectl-abriment
+    - selector:
+        matchLabels:
+          os: linux
+          arch: amd64
+      uri: https://github.com/abrimentcloud/kubectl-abriment/releases/download/v1.0.0/kubectl-abriment_v1.0.0_linux_amd64.tar.gz
+      sha256: TODO
+      bin: kubectl-abriment
+    - selector:
+        matchLabels:
+          os: windows
+          arch: amd64
+      uri: https://github.com/abrimentcloud/kubectl-abriment/releases/download/v1.0.0/kubectl-abriment_v1.0.0_windows_amd64.tar.gz
+      sha256: TODO
+      bin: kubectl-abriment.exe

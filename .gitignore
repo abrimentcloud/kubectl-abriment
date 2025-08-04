@@ -1,0 +1,46 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binaries
+*_test
+
+# Output of `go build`
+*.out
+
+# Dependency caches
+/vendor/
+/go.mod.bak
+/go.sum.bak
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.bak
+*.tmp
+*.log
+
+# Operating System specific files
+.DS_Store
+Thumbs.db
+
+# Build output directories
+/bin/
+/build/
+/dist/
+
+# Package management related files
+# If using dep
+Gopkg.lock
+Gopkg.toml
+
+# If using glide
+glide.lock
+
+# If using godep
+Godeps/
+
+.env

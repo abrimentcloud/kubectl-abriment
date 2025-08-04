@@ -1,0 +1,92 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+env:
+  BINARY_NAME: kubectl-abriment
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
+
+      - name: Get version
+        id: version
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          else
+            echo "version=v1.0.0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build binaries
+        run: |
+          mkdir -p dist
+
+          # Linux amd64
+          GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.version }}" -o dist/kubectl-abriment .
+          cd dist && tar -czf kubectl-abriment_${{ steps.version.outputs.version }}_linux_amd64.tar.gz kubectl-abriment && cd ..
+
+          # Darwin amd64
+          GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.version }}" -o dist/kubectl-abriment .
+          cd dist && tar -czf kubectl-abriment_${{ steps.version.outputs.version }}_darwin_amd64.tar.gz kubectl-abriment && cd ..
+
+          # Darwin arm64
+          GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${{ steps.version.outputs.version }}" -o dist/kubectl-abriment .
+          cd dist && tar -czf kubectl-abriment_${{ steps.version.outputs.version }}_darwin_arm64.tar.gz kubectl-abriment && cd ..
+
+          # Windows amd64
+          GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.version }}" -o dist/kubectl-abriment.exe .
+          cd dist && tar -czf kubectl-abriment_${{ steps.version.outputs.version }}_windows_amd64.tar.gz kubectl-abriment.exe && cd ..
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          sha256sum *.tar.gz > checksums.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          body: |
+            ## kubectl-abriment ${{ steps.version.outputs.version }}
+
+            ### Installation
+
+            Download the appropriate archive for your platform, extract it, and place the binary in your PATH.
+
+            ### Usage
+            ```bash
+            kubectl abriment --help
+            kubectl abriment interactive
+            ```
+
+            ### Platform Support
+            - Linux (amd64)
+            - macOS (amd64, arm64)
+            - Windows (amd64)
+
+            ### Verification
+            Use the checksums.txt file to verify download integrity:
+            ```bash
+            sha256sum -c checksums.txt
+            ```
+          files: |
+            dist/*.tar.gz
+            dist/checksums.txt
+          draft: false
+          prerelease: false
