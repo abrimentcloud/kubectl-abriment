@@ -150,3 +150,21 @@ jobs:
           }
           { print }
           ' plugins/abriment.yaml > plugins/abriment.yaml.tmp && mv plugins/abriment.yaml.tmp plugins/abriment.yaml
+
+          # Verify the update
+          echo "Updated manifest:"
+          cat plugins/abriment.yaml
+
+      - name: Commit and push updated manifest
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add plugins/abriment.yaml
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update Krew manifest for ${{ steps.version.outputs.version }}"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

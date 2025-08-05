@@ -16,8 +16,10 @@ The `kubectl-abriment` plugin simplifies the process of connecting to Kubernetes
 
 ### Add to krew plugins (Recommended)
 
-1. kubectl krew index add abriment https://github.com/abrimentcloud/kubectl-abriment.git
-2. kubectl krew install abriment/abriment
+```bash
+kubectl krew index add abriment https://github.com/abrimentcloud/kubectl-abriment.git
+kubectl krew install abriment/abriment
+```
 
 ### Install from Release
 
