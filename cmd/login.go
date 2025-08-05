@@ -65,15 +65,20 @@ var loginCmd = &cobra.Command{
 			return
 		}
 
+		var dryRunChoice bool
 		if dryrun == "client" {
-			fmt.Println(string(yamlBytes))
-			return
+			dryRunChoice = true
 		}
 
-		if err := login.SaveConfigToConfigfile(yamlBytes); err != nil {
+		if err := login.SaveConfigToConfigfile(yamlBytes, dryRunChoice); err != nil {
 			fmt.Println(err)
 			return
 		}
+
+		if dryRunChoice {
+			return
+		}
+
 		fmt.Println("Configuration saved successfully!")
 	},
 }

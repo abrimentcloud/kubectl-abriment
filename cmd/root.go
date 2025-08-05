@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"syscall"
 
 	"github.com/abrimentcloud/kubectl-abriment/config"
@@ -234,17 +233,13 @@ func interactive(cmd *cobra.Command, args []string) {
 	}
 	survey.AskOne(dryRunPrompt, &dryRunChoice)
 
-	if dryRunChoice {
-		fmt.Println("\nKubeconfig Preview:")
-		fmt.Println("=" + strings.Repeat("=", 50))
-		fmt.Println(string(yamlBytes))
-		fmt.Println("=" + strings.Repeat("=", 50))
+	// Save config
+	if err := login.SaveConfigToConfigfile(yamlBytes, dryRunChoice); err != nil {
+		fmt.Printf("Error saving config: %v\n", err)
 		return
 	}
 
-	// Save config
-	if err := login.SaveConfigToConfigfile(yamlBytes); err != nil {
-		fmt.Printf("❌ Error saving config: %v\n", err)
+	if dryRunChoice {
 		return
 	}
 

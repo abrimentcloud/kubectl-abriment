@@ -116,24 +116,37 @@ jobs:
           DARWIN_ARM64_SHA256=$(grep "kubectl-abriment_${{ steps.version.outputs.version }}_darwin_arm64.tar.gz" checksums.txt | cut -d' ' -f1)
           WINDOWS_SHA256=$(grep "kubectl-abriment_${{ steps.version.outputs.version }}_windows_amd64.tar.gz" checksums.txt | cut -d' ' -f1)
 
-          # Update abriment.yaml
+          # Update abriment.yaml using sed with more specific patterns
+          # Update version
           sed -i "s/version: v[0-9]\+\.[0-9]\+\.[0-9]\+/version: ${{ steps.version.outputs.version }}/" plugins/abriment.yaml
+
+          # Update download URLs
           sed -i "s|download/v[0-9]\+\.[0-9]\+\.[0-9]\+/|download/${{ steps.version.outputs.version }}/|g" plugins/abriment.yaml
+
+          # Update filenames in URLs
           sed -i "s/kubectl-abriment_v[0-9]\+\.[0-9]\+\.[0-9]\+_/kubectl-abriment_${{ steps.version.outputs.version }}_/g" plugins/abriment.yaml
 
-          # Update SHA256 values
+          # Create a temporary file with updated SHA256 values
           awk -v linux_sha="$LINUX_SHA256" -v darwin_amd64_sha="$DARWIN_AMD64_SHA256" -v darwin_arm64_sha="$DARWIN_ARM64_SHA256" -v windows_sha="$WINDOWS_SHA256" '
-          /os: linux/ {in_linux=1}
-          /os: darwin/ && /arch: amd64/ {in_darwin_amd64=1; in_linux=0}
-          /os: darwin/ && /arch: arm64/ {in_darwin_arm64=1; in_darwin_amd64=0}
-          /os: windows/ {in_windows=1; in_darwin_arm64=0}
-          /sha256: TODO/ {
-              if (in_linux) print "      sha256: " linux_sha
-              else if (in_darwin_amd64) print "      sha256: " darwin_amd64_sha
-              else if (in_darwin_arm64) print "      sha256: " darwin_arm64_sha
-              else if (in_windows) print "      sha256: " windows_sha
-              else print $0
+          BEGIN { platform_count = 0 }
+          /- selector:/ { platform_count++ }
+          /sha256:/ {
+              if (platform_count == 1) {
+                  # Darwin amd64 (first platform)
+                  print "      sha256: " darwin_amd64_sha
+              } else if (platform_count == 2) {
+                  # Darwin arm64 (second platform)
+                  print "      sha256: " darwin_arm64_sha
+              } else if (platform_count == 3) {
+                  # Linux amd64 (third platform)
+                  print "      sha256: " linux_sha
+              } else if (platform_count == 4) {
+                  # Windows amd64 (fourth platform)
+                  print "      sha256: " windows_sha
+              } else {
+                  print $0
+              }
               next
           }
-          {print}
+          { print }
           ' plugins/abriment.yaml > plugins/abriment.yaml.tmp && mv plugins/abriment.yaml.tmp plugins/abriment.yaml

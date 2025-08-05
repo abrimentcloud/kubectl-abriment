@@ -33,13 +33,13 @@ func RemoveAbrimentFromConfigfile() error {
 		return fmt.Errorf("error loading existing kubeconfig file | %v", err)
 	}
 
-	// check for abriment cluster exsist in the kubeconfig file on machine. if not exists then add the cluster to clusters map.
+	// add abriment-cluster to kubeconfig clusters.
 	delete(kubeconfig.Clusters, config.AbrimentCluster)
 
-	// check for abriment context exsist in the kubeconfig file on machine. if not exists then add the context to context map.
+	// add abriment-context to kubeconfig contexts.
 	delete(kubeconfig.Contexts, config.AbrimentContext)
 
-	// check for abriment users exsist in the kubeconfig file on machine. if not exists then add the context to users map.
+	// add abriment-user to kubeconfig users.
 	delete(kubeconfig.AuthInfos, config.AbrimentUser)
 
 	// writed edited configfile to disk.

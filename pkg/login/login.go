@@ -85,7 +85,7 @@ func GetYamlConfig(token string, cfg *config.Config) ([]byte, error) {
 }
 
 // saveYamlFile get kubeconfig file bytes and stores it either in existing custom path or default path.
-func SaveConfigToConfigfile(yamlBytes []byte) error {
+func SaveConfigToConfigfile(yamlBytes []byte, dryrun bool) error {
 	existingPath := os.Getenv("KUBECONFIG")
 
 	existingPath, _ = strings.CutSuffix(existingPath, config.KubeconfigFileName)
@@ -129,19 +129,26 @@ func SaveConfigToConfigfile(yamlBytes []byte) error {
 		return fmt.Errorf("error loading existing kubeconfig file | %v", err)
 	}
 
-	// check for abriment cluster exsist in the kubeconfig file on machine. if not exists then add the cluster to clusters map.
-	if _, exists := existingkubeconfig.Clusters[config.AbrimentCluster]; !exists {
-		existingkubeconfig.Clusters[config.AbrimentCluster] = newkubeconfig.Clusters[config.AbrimentCluster]
-	}
+	// add abriment-cluster to kubeconfig clusters.
+	existingkubeconfig.Clusters[config.AbrimentCluster] = newkubeconfig.Clusters[config.AbrimentCluster]
 
-	// check for abriment context exsist in the kubeconfig file on machine. if not exists then add the context to context map.
-	if _, exists := existingkubeconfig.Contexts[config.AbrimentContext]; !exists {
-		existingkubeconfig.Contexts[config.AbrimentContext] = newkubeconfig.Contexts[config.AbrimentContext]
-	}
+	// add abriment-context to kubeconfig contexts.
+	existingkubeconfig.Contexts[config.AbrimentContext] = newkubeconfig.Contexts[config.AbrimentContext]
 
-	// check for abriment user exsist in the kubeconfig file on machine. if not exists then add the users to context map.
-	if _, exists := existingkubeconfig.AuthInfos[config.AbrimentUser]; !exists {
-		existingkubeconfig.AuthInfos[config.AbrimentUser] = newkubeconfig.AuthInfos[config.AbrimentUser]
+	// add abriment-user to kubeconfig users.
+	existingkubeconfig.AuthInfos[config.AbrimentUser] = newkubeconfig.AuthInfos[config.AbrimentUser]
+
+	if dryrun {
+		dryBytes, err := clientcmd.Write(*existingkubeconfig)
+		if err != nil {
+			return fmt.Errorf("error write configfile to bytes | %v", err)
+		}
+
+		fmt.Println("\nKubeconfig Preview:")
+		fmt.Println("=" + strings.Repeat("=", 50))
+		fmt.Println(string(dryBytes))
+		fmt.Println("=" + strings.Repeat("=", 50))
+		return nil
 	}
 
 	// writed edited configfile to disk.
