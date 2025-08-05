@@ -37,7 +37,7 @@ jobs:
           mkdir -p dist
 
           # Linux amd64
-          GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.version }}" -o dist/kubectl-abriment .
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.version }}" -o dist/kubectl-abriment .
           cd dist && tar -czf kubectl-abriment_${{ steps.version.outputs.version }}_linux_amd64.tar.gz kubectl-abriment && cd ..
 
           # Darwin amd64

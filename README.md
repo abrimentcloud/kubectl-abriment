@@ -11,19 +11,24 @@ The `kubectl-abriment` plugin simplifies the process of connecting to Kubernetes
 ### Prerequisites
 
 - kubectl installed and configured
+- krew installed on kubectl
 - Go 1.19+ (if building from source)
 
-### Install from Release (Recommended)
+### Add to krew plugins (Recommended)
 
-1. Download the latest release for your platform from the [releases page](https://github.com/abrimentcloud/kubectl-abriment-plugin/releases)
-2. Extract the binary and place it in your PATH
-3. Rename the binary to `kubectl-abriment` (or `kubectl-abriment.exe` on Windows)
-4. Make it executable (Unix/Linux/macOS): `chmod +x kubectl-abriment`
+1. kubectl krew index add abriment https://github.com/abrimentcloud/kubectl-abriment.git
+2. kubectl krew install abriment/abriment
+
+### Install from Release
+
+```bash
+go install github.com/abrimentcloud/kubectl-abriment@latest
+```
 
 ### Build from Source
 
 ```bash
-git clone https://github.com/abriemntcloud/kubectl-abriment-plugin.git
+git clone https://github.com/abriemntcloud/kubectl-abriment.git
 cd kubectl-abriment-plugin
 go build -o kubectl-abriment
 ```
@@ -36,7 +41,7 @@ Move the binary to a directory in your PATH, such as `/usr/local/bin` (Unix/Linu
 kubectl abriment help
 ```
 
-## Usage
+## Usage (As kubectl plugin)
 
 ### Quick Start
 
@@ -101,7 +106,7 @@ You can customize the plugin behavior using these environment variables:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `LOGIN_ENDPOINT` | `https://backend.abriment.com/dashboard/api/login/` | Backend login endpoint |
-| `CONFIG_ENDPOINT` | `https://backend.abriment.com/api/v1/paas/kubeconfig/` | Backend config endpoint |
+| `CONFIG_ENDPOINT` | `https://backend.abriment.com/dashboard/api/v1/paas/kubeconfig/` | Backend config endpoint |
 | `KUBECONFIG` | `~/.kube/config` | Custom path for kubeconfig file |
 
 ### Example Environment Setup
@@ -173,34 +178,6 @@ Verify the connection:
 kubectl cluster-info
 kubectl get nodes
 ```
-
-## Troubleshooting
-
-### Common Issues
-
-#### Authentication Failed
-- Verify your credentials are correct
-- Check if the login endpoint is accessible
-- Ensure your account is not locked or disabled
-
-#### Config Retrieval Failed
-- Verify your token is valid and not expired
-- Check if the config endpoint is accessible
-- Ensure you have permissions to access kubeconfig
-
-#### Permission Denied When Saving
-- Check write permissions on the kubeconfig directory
-- Verify the KUBECONFIG path is correct
-- Try running with appropriate permissions
-
-#### Plugin Not Found
-- Ensure the binary is named `kubectl-abriment` (or `kubectl-abriment.exe` on Windows)
-- Verify the binary is in your PATH
-- Check that the binary has execute permissions
-
-### Debug Mode
-
-For detailed error information, you can examine the HTTP responses by modifying the source code to include debug logging.
 
 ### Getting Help
 

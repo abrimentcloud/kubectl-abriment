@@ -16,7 +16,7 @@ const (
 
 type Config struct {
 	LoginEndpoint  string `env:"LOGIN_ENDPOINT" envDefault:"https://backend.abriment.com/dashboard/api/login/"`
-	ConfigEndpoint string `env:"CONFIG_ENDPOINT" envDefault:"https://backend.abriment.com/api/v1/paas/kubeconfig/"`
+	ConfigEndpoint string `env:"CONFIG_ENDPOINT" envDefault:"https://backend.abriment.com/dashboard/api/v1/paas/kubeconfig/"`
 }
 
 func ParseCfg() (*Config, error) {
