@@ -3,7 +3,7 @@ kind: Plugin
 metadata:
   name: abriment
 spec:
-  version: v1.0.0
+  version: v1.0.8
   homepage: https://github.com/abrimentcloud/kubectl-abriment
   shortDescription: Authenticate with Abriment backend and configure kubeconfig
   description: |
@@ -16,27 +16,27 @@ spec:
         matchLabels:
           os: darwin
           arch: amd64
-      uri: https://github.com/abrimentcloud/kubectl-abriment/releases/download/v1.0.0/kubectl-abriment_v1.0.0_darwin_amd64.tar.gz
-      sha256: 4c64063699c1ff6a5c6bf9b81e6348aa7492dc1817f01f7fbde5d70d9490aedf
+      uri: https://github.com/abrimentcloud/kubectl-abriment/releases/download/v1.0.8/kubectl-abriment_v1.0.8_darwin_amd64.tar.gz
+      sha256: 85832b06dbcae0be50d26ac8cfa1882752f841bfaa4945cc4f3cf76bfaf7d36e
       bin: kubectl-abriment
     - selector:
         matchLabels:
           os: darwin
           arch: arm64
-      uri: https://github.com/abrimentcloud/kubectl-abriment/releases/download/v1.0.0/kubectl-abriment_v1.0.0_darwin_arm64.tar.gz
-      sha256: 9a84c82a68c0ea767c67a3862e35929691bbe9afaf8f899e7ac8cc82ba03327a
+      uri: https://github.com/abrimentcloud/kubectl-abriment/releases/download/v1.0.8/kubectl-abriment_v1.0.8_darwin_arm64.tar.gz
+      sha256: 7b55813dfea9227d9723998d8bd78647ae49c4adf44e7f1388642e72df1856d2
       bin: kubectl-abriment
     - selector:
         matchLabels:
           os: linux
           arch: amd64
-      uri: https://github.com/abrimentcloud/kubectl-abriment/releases/download/v1.0.0/kubectl-abriment_v1.0.0_linux_amd64.tar.gz
-      sha256: 2d28ecb4a6bf160a10881d5435c9f51ada360ff6cd8b2c6529a70be149e2be82
+      uri: https://github.com/abrimentcloud/kubectl-abriment/releases/download/v1.0.8/kubectl-abriment_v1.0.8_linux_amd64.tar.gz
+      sha256: 94950dd78169e01437557a6b71335beeed3d3575bb6b5128075108bf4a56577c
       bin: kubectl-abriment
     - selector:
         matchLabels:
           os: windows
           arch: amd64
-      uri: https://github.com/abrimentcloud/kubectl-abriment/releases/download/v1.0.0/kubectl-abriment_v1.0.0_windows_amd64.tar.gz
-      sha256: fe490a3259cd68311382e665aa992c8f62e5eaf1532229cdb7391c58a5c76a60
+      uri: https://github.com/abrimentcloud/kubectl-abriment/releases/download/v1.0.8/kubectl-abriment_v1.0.8_windows_amd64.tar.gz
+      sha256: effaee21de1decb5e9f1d7e974d7672dca75d2681aeb7350b397285561d706e0
       bin: kubectl-abriment.exe
